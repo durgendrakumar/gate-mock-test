@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analog Electronics - Full Mock Test</title>
+    <style>
+        :root {
+            --bg: #f8fafc; --panel: #ffffff; --accent: #2563eb;
+            --ans: #16a34a; --visited: #dc2626; --not-visit: #64748b;
+        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: var(--bg); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        header { background: #1e3a8a; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .timer { font-family: monospace; font-size: 1.4em; font-weight: bold; }
+        .layout { display: flex; flex: 1; overflow: hidden; }
+        .q-column { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #cbd5e1; }
+        .q-scroll { flex: 1; padding: 30px; overflow-y: auto; background: white; }
+        .option-card { display: flex; align-items: center; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 12px; margin: 8px 0; border-radius: 6px; cursor: pointer; }
+        .option-card.selected { border: 2px solid var(--accent); background: #dbeafe; }
+        .footer { background: #f8fafc; padding: 15px; border-top: 1px solid #cbd5e1; display: flex; gap: 10px; }
+        .btn { padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; border: 1px solid #ccc; }
+        .btn-save { background: var(--ans); color: white; border: none; }
+        .sidebar { width: 320px; background: white; padding: 15px; display: flex; flex-direction: column; }
+        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin: 15px 0; max-height: 250px; overflow-y: auto; padding: 5px; border: 1px solid #eee; }
+        .p-btn { aspect-ratio: 1; border: 1px solid #cbd5e1; border-radius: 4px; color: white; cursor: pointer; font-size: 11px; background: var(--not-visit); }
+        .p-btn.active { outline: 3px solid #fbbf24; }
+        .p-btn.answered { background: var(--ans); clip-path: polygon(0% 20%, 100% 20%, 100% 100%, 0% 100%); }
+        .p-btn.visited { background: var(--visited); border-radius: 8px 8px 0 0; }
+        .calc-container { background: #1e293b; border-radius: 8px; padding: 10px; color: white; margin-top: auto; }
+        .calc-display { background: #0f172a; padding: 8px; text-align: right; border-radius: 4px; margin-bottom: 5px; font-family: monospace; color: #4ade80; min-height: 20px; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
+        .c-btn { background: #334155; border: none; color: white; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        #result-screen { text-align: center; padding: 50px; background: white; height: 100vh; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div><b>Analog Electronics</b> | 86 Previous ECET Questions</div>
+    <div class="timer" id="timer">120:00</div>
+</header>
+
+<div class="layout" id="test-layout">
+    <div class="q-column">
+        <div class="q-scroll" id="q-content"></div>
+        <div class="footer">
+            <button class="btn" onclick="clearSelection()">Clear Response</button>
+            <div style="flex-grow:1"></div>
+            <button class="btn btn-save" onclick="saveAndNext()">Save & Next</button>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <h4 style="margin:0">Question Palette</h4>
+        <div class="palette" id="palette"></div>
+        <div class="calc-container">
+            <div class="calc-display" id="calc-out">0</div>
+            <div class="calc-grid">
+                <button class="c-btn" onclick="cAct('7')">7</button><button class="c-btn" onclick="cAct('8')">8</button><button class="c-btn" onclick="cAct('9')">9</button><button class="c-btn" onclick="cAct('AC')" style="background:#991b1b">C</button>
+                <button class="c-btn" onclick="cAct('4')">4</button><button class="c-btn" onclick="cAct('5')">5</button><button class="c-btn" onclick="cAct('6')">6</button><button class="c-btn" onclick="cAct('*')">×</button>
+                <button class="c-btn" onclick="cAct('1')">1</button><button class="c-btn" onclick="cAct('2')">2</button><button class="c-btn" onclick="cAct('3')">3</button><button class="c-btn" onclick="cAct('/')">÷</button>
+                <button class="c-btn" onclick="cAct('0')">0</button><button class="c-btn" onclick="cAct('.')">.</button><button class="c-btn" onclick="cAct('=')" style="grid-column: span 2; background: #2563eb;">=</button>
+            </div>
+        </div>
+        <button onclick="finalSubmit()" style="margin-top:15px; padding:12px; background:#dc2626; color:white; border:none; font-weight:bold; cursor:pointer; border-radius:4px;">SUBMIT TEST</button>
+    </div>
+</div>
+
+<div id="result-screen" class="hidden">
+    <h1 style="color: #1e3a8a;">Exam Summary</h1>
+    <div style="font-size: 64px; font-weight: bold; color: #16a34a;" id="score-val">0</div>
+    <p>Questions Correct</p>
+    <div id="breakdown" style="margin: 20px auto; max-width: 300px; text-align: left; background: #f1f5f9; padding: 20px; border-radius: 10px;"></div>
+    <button onclick="location.reload()" class="btn" style="background:#1e3a8a; color:white;">Restart Test</button>
+</div>
+
+<script>
+    const qData = [
+        { t: "A single diode operates as:", o: ["Full wave rectifier", "Half wave rectifier", "Bridge rectifier", "Non-rectifier"], c: 1 },
+        { t: "A zener diode is used as:", o: ["Current regulator", "Voltage booster", "Voltage regulator", "Power regulator"], c: 2 },
+        { t: "An UJT exhibits negative resistance region:", o: ["Before the peak point", "Between peak and valley points", "After valley point", "Never"], c: 1 },
+        { t: "The phase shift oscillator using OP-amplifier is:", o: ["Voltage series feedback", "Voltage shunt feedback", "Current series feedback", "Current shunt feedback"], c: 0 },
+        { t: "The following is a donor material:", o: ["Gallium", "Antimony", "Boron", "Iridium"], c: 1 },
+        { t: "In doping of semiconductors, the following is added:", o: ["Impurity like antimony", "Chemical", "Water", "Copper"], c: 0 },
+        { t: "In a semiconductor, the movement of holes is due to:", o: ["Movement in conduction band", "Electrons in conduction band", "Electrons in valence band", "Holes in valance band"], c: 2 },
+        { t: "In a PNP transistor saturation current is due to flow of:", o: ["Electrons collector to base", "Holes collector to base", "Electrons emitter to base", "Holes emitter to base"], c: 0 },
+        { t: "N type FET never operated with positive gate voltage because:", o: ["Gate-source current must be avoided", "Drain current does not increase", "Drain current not constant", "Drain current high"], c: 0 },
+        { t: "Gain of amplifier more affected by transistor parameters in:", o: ["Positive feedback", "Negative feedback", "Zero feedback", "Both 1 and 2"], c: 0 },
+        { t: "A Hartley oscillator uses:", o: ["A tapped inductor", "A tapped capacitor", "Both", "An inductor"], c: 0 },
+        { t: "A modulator is a system to:", o: ["Separate two frequencies", "Impress info onto RF carrier", "Extract info", "Amplify audio"], c: 1 },
+        { t: "Frequency not transmitted in signal transmission:", o: ["Upper side", "Lower side", "Audio frequency", "Carrier"], c: 2 },
+        { t: "Semiconductor is electrically neutral because:", o: ["No free carriers", "No majority carriers", "Equal positive and negative carriers", "All of the above"], c: 2 },
+        { t: "A single diode operates as (ECET-2011):", o: ["Full wave", "Half wave", "Bridge", "Midpoint"], c: 1 },
+        { t: "A zener diode is operated in the:", o: ["Forward bias", "Reverse bias", "Breakdown region", "Neither"], c: 2 },
+        { t: "A CRO can display:", o: ["AC signals", "DC signals", "Both AC and DC", "Time invariant"], c: 2 },
+        { t: "Main advantage of crystal oscillator output is:", o: ["Constant frequency", "DC", "50-60 Hz", "Variable frequency"], c: 0 },
+        { t: "Input impedance of operational amplifiers is:", o: ["Infinite", "Zero", "Very high", "Very small"], c: 0 },
+        { t: "ICs are usually made of:", o: ["Silicon", "Germanium", "Aluminium", "Silver"], c: 0 },
+        { t: "Transistor in amplifier circuits operates in:", o: ["Active region", "Saturation", "Cut off", "Reverse"], c: 0 },
+        { t: "Diodes in half wave and bridge rectifier are:", o: ["1,2", "1,4", "2,4", "2,1"], c: 1 },
+        { t: "Average voltage of FWR with peak Vm is:", o: ["Vm/π", "2Vm/π", "Vm/2", "Vm*2"], c: 1 },
+        { t: "In a transistor, which layer is lightly doped:", o: ["Emitter", "Collector", "Drain", "Base"], c: 3 },
+        { t: "Zener diode regulates:", o: ["Voltage", "Current", "Resistance", "Base"], c: 0 },
+        { t: "Frequency of oscillation of Wien bridge (Hz):", o: ["1/(2πRC)", "2πRC", "1/RC", "RC"], c: 0 },
+        { t: "Relation between α and β:", o: ["α = β/(1-β)", "β = α/(1-α)", "α = β+1", "β = α/(1+α)"], c: 1 },
+        { t: "Resonant frequency with f1 and f2 half-power points:", o: ["(f1+f2)/2", "sqrt(f1*f2)", "(f1+f2)/2", "f1*f2"], c: 1 },
+        { t: "Centre tapped FWR diode conducts for (degrees):", o: ["180", "90", "270", "360"], c: 0 },
+        { t: "Configuration used in cascading amplifiers:", o: ["CE", "CB", "CC", "All"], c: 0 },
+        { t: "Voltage gain of CC amplifier is:", o: ["Less than one", "Greater than one", "Zero", "Infinity"], c: 0 },
+        { t: "Oscillator employing RC phase shift:", o: ["Hartley", "Colpitts", "Crystal", "Wien bridge"], c: 3 },
+        { t: "RC phase shift in each network (degrees):", o: ["45", "60", "90", "180"], c: 1 },
+        { t: "In class AB amplifier output current flows:", o: ["Full cycle", "More than half", "Less than half", "Half cycle"], c: 1 },
+        { t: "Voltage of CB configuration has phase shift of:", o: ["180", "360/0", "90", "270"], c: 1 },
+        { t: "Phase difference input/output of oscillator:", o: ["180", "360/0", "90", "270"], c: 1 },
+        { t: "Used as voltage to frequency converter:", o: ["Schmitt trigger", "Astable MV", "Bistable MV", "Monostable MV"], c: 1 },
+        { t: "Reverse biased PN junction has:", o: ["Narrow depletion", "Net hole current", "Net electron current", "Almost zero current"], c: 3 },
+        { t: "Hall effect can measure:", o: ["Magnetic field", "Electric field", "Hole current", "Carrier concentration"], c: 3 },
+        { t: "Resistance of reverse biased diode is:", o: ["0", "Low", "Negative", "Infinite"], c: 3 },
+        { t: "Number of PN junctions in a thyristor:", o: ["1", "2", "3", "4"], c: 2 },
+        { t: "Constant voltage obtained when zener is:", o: ["Forward biased", "Reverse biased after breakdown", "Forward biased after cut-in", "Reverse within breakdown"], c: 1 },
+        { t: "Output frequency of 1-phase 50Hz HWR:", o: ["50 Hz", "25 Hz", "100 Hz", "0 Hz"], c: 0 },
+        { t: "Time delay phase measured by:", o: ["VTVM", "PMMC", "Sphere gap", "CRO"], c: 3 },
+        { t: "Unity current gain obtained in:", o: ["CB", "CE", "CC", "CB and CC"], c: 0 },
+        { t: "CRO displays waveforms based on:", o: ["Current", "Voltage", "Potential difference", "Temperature"], c: 1 },
+        { t: "Op-amp comparator circuit uses:", o: ["Negative feedback", "Resistor", "Positive feedback", "No feedback"], c: 3 },
+        { t: "Integrator op-amp feedback element:", o: ["Capacitor", "Inductor", "Resistor", "Transistor"], c: 0 },
+        { t: "Relaxation oscillator principle:", o: ["Cascaded resistors", "Charge/discharge capacitor", "Rectification", "Switching transistors"], c: 1 },
+        { t: "Oscillator is described by:", o: ["Regenerative feedback", "No feedback", "Integrator", "Unity gain/Zero phase shift"], c: 0 },
+        { t: "In a NPN transistor:", o: ["Emitter/Base are N", "Collector/Emitter are N", "Emitter P / Base N", "Collector P / Base N"], c: 1 },
+        { t: "Input 40ms period to FWR, output period is:", o: ["20 ms", "40 ms", "10 ms", "80 ms"], c: 0 },
+        { t: "Reverse biasing is useful in:", o: ["LED", "Zener Diode", "SCR", "LCD"], c: 1 },
+        { t: "Current gain > 1 and Voltage gain ≈ 1 in:", o: ["CE/CB", "CB only", "CC only", "CE/CC"], c: 2 },
+        { t: "Source follower FET voltage gain:", o: ["> 100", "< 1 and positive", "Unity and negative", "-10"], c: 1 },
+        { t: "Dark current in photodiode is:", o: ["Forward current", "Forward saturation", "Reverse saturation", "Transient"], c: 2 },
+        { t: "Center tap FWR, 100V peak tap-to-end. Max voltage across reverse diode:", o: ["200 V", "141 V", "100 V", "86 V"], c: 0 },
+        { t: "Inverting amp terminals same potential because:", o: ["Shorted internally", "Impedance infinity", "CMRR infinity", "Open loop gain infinity"], c: 3 },
+        { t: "Diff gain 50, Common gain 0.2. CMRR is:", o: ["10", "49.8", "50.2", "250"], c: 3 },
+        { t: "Barkhausen criterion for sustained oscillations:", o: ["Aβ = 1", "Aβ < 1", "Aβ > 1", "Angle = 180"], c: 0 },
+        { t: "RC phase oscillator minimum networks:", o: ["One", "Two", "Three", "Four"], c: 2 },
+        { t: "Output 1 iff all inputs 0:", o: ["NOR", "AND", "OR", "EX-OR"], c: 0 },
+        { t: "Transistor as amplifier biasing:", o: ["Both forward", "Both reverse", "EB forward / CB reverse", "Any bias"], c: 2 },
+        { t: "Input 50Hz, FWR output frequency is:", o: ["50 Hz", "100 Hz", "25 Hz", "200 Hz"], c: 1 },
+        { t: "Designed to operate with reverse bias:", o: ["LED/Zener", "Photo/LED", "Photo/Zener", "All"], c: 2 },
+        { t: "CRO sensitivity 5V/cm, 10cm trace. RMS voltage is:", o: ["50 V", "50/sqrt(2)", "25 V", "25/sqrt(2)"], c: 3 },
+        { t: "Current in zener diode controlled by:", o: ["Reverse voltage", "Potential barrier", "Zener resistance", "External resistance"], c: 3 },
+        { t: "Each diode of HWR conducts for (degrees):", o: ["90", "180", "270", "360"], c: 1 },
+        { t: "Transistor in amplifier operates in:", o: ["Active", "Saturation", "Cut off", "Reverse"], c: 0 },
+        { t: "Maximum efficiency of Class A amplifier:", o: ["100%", "81.8%", "50%", "30%"], c: 2 },
+        { t: "Purpose of coupling capacitor:", o: ["Control output", "Match impedance", "Control BW", "Prevent DC mixing"], c: 3 },
+        { t: "Phase shift oscillator stages:", o: ["Four", "Three", "Two", "One"], c: 1 },
+        { t: "Most stable oscillator:", o: ["Crystal", "Wien", "Colpitts", "Hartley"], c: 0 },
+        { t: "FET device characteristic:", o: ["High impedance", "Minority carriers", "Forward biased", "High concentration emitter"], c: 0 },
+        { t: "PIV of bridge rectifier:", o: ["Vm", "2Vm", "0.5Vm", "4Vm"], c: 0 },
+        { t: "Wien bridge feedback network phase shift:", o: ["0", "180", "60", "270"], c: 0 },
+        { t: "Thyristor reverse biased, blocked junctions:", o: ["1", "2", "3", "4"], c: 1 },
+        { t: "BJT saturation mode junctions:", o: ["CB forward / BE reverse", "Both forward", "CB reverse / BE forward", "Both reverse"], c: 1 },
+        { t: "CRO time base changes:", o: ["Amplitude", "Frequency", "Gain", "Intensity"], c: 1 },
+        { t: "NPN base region main stream current:", o: ["Drift holes", "Diffusion holes", "Drift electrons", "Diffusion electrons"], c: 3 },
+        { t: "JFET pinch off region, drain voltage increases, current:", o: ["Zero", "Decreases", "Increases", "Constant"], c: 3 },
+        { t: "Center tap FWR, 100V peak. Max reverse diode voltage:", o: ["200 V", "141 V", "100 V", "86 V"], c: 0 },
+        { t: "If diff/common gains are 50 and 0.2, CMRR is:", o: ["10", "49.8", "50.2", "250"], c: 3 },
+        { t: "An ideal amplifier has:", o: ["Positive feedback", "Uniform frequency response", "Infinite voltage gain", "Input only response"], c: 1 },
+        { t: "The Barkhausen criterion is given by:", o: ["Aβ = 1", "Aβ >= 1", "Aβ < 1", "Angle = 180"], c: 0 },
+        { t: "Wien bridge oscillator positive feedback attenuation:", o: ["1/3", "1/29", "-29", "3"], c: 0 }
+    ];
+
+    let current = 0, answers = {}, status = qData.map(() => 'not-visit'), tSel = null, timeLeft = 7200;
+
+    function render() {
+        const q = qData[current];
+        let body = `<div style="border-bottom:2px solid #eee; margin-bottom:15px;"><h3>Question ${current + 1}</h3></div><p>${q.t}</p>`;
+        q.o.forEach((opt, i) => {
+            const isS = (tSel === i) || (answers[current] === i);
+            body += `<div class="option-card ${isS ? 'selected' : ''}" onclick="sel(${i})"><input type="radio" ${isS?'checked':''}> ${opt}</div>`;
+        });
+        document.getElementById('q-content').innerHTML = body;
+        drawPalette();
+    }
+
+    window.sel = (i) => { tSel = i; render(); };
+    window.saveAndNext = () => {
+        if(tSel !== null) { answers[current] = tSel; status[current] = 'answered'; }
+        else if(status[current] !== 'answered') status[current] = 'visited';
+        if(current < qData.length - 1) { current++; tSel = answers[current] ?? null; render(); }
+    };
+    window.clearSelection = () => { delete answers[current]; tSel = null; status[current] = 'visited'; render(); };
+
+    function drawPalette() {
+        const p = document.getElementById('palette'); p.innerHTML = '';
+        qData.forEach((_, i) => {
+            const b = document.createElement('button');
+            b.className = `p-btn ${status[i]} ${i===current?'active':''}`;
+            b.innerText = i+1;
+            b.onclick = () => { current = i; if(status[i]==='not-visit') status[i]='visited'; render(); };
+            p.appendChild(b);
+        });
+    }
+
+    function finalSubmit() {
+        if(!confirm("Submit Exam?")) return;
+        let cor = 0;
+        qData.forEach((q, i) => { if(answers[i] === q.c) cor++; });
+        document.getElementById('test-layout').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('score-val').innerText = cor;
+        document.getElementById('breakdown').innerHTML = `Total Correct: ${cor}<br>Wrong/Skipped: ${qData.length - cor}<br>Total Questions: ${qData.length}`;
+    }
+
+    let cv = "0", op = null, pv = null;
+    window.cAct = (a) => {
+        if(a === 'AC') { cv = "0"; op = pv = null; }
+        else if(['+','-','*','/'].includes(a)) { pv = parseFloat(cv); op = a; cv = "0"; }
+        else if(a === '=') { let r = 0, c = parseFloat(cv); if(op==='*') r=pv*c; if(op==='/') r=pv/c; cv=r.toString(); }
+        else { cv = (cv==="0") ? a : cv + a; }
+        document.getElementById('calc-out').innerText = cv;
+    };
+
+    setInterval(() => {
+        timeLeft--; const m = Math.floor(timeLeft/60), s = timeLeft%60;
+        document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+    }, 1000);
+
+    render();
+</script>
+</body>
+</html>

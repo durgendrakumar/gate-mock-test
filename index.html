@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>GATE EE — Electrical Machines Mock Test</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f172a; font-family: 'Segoe UI', sans-serif; }
+    button:active { opacity: 0.75; transform: scale(0.97); }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const questions = [
+      {
+        id: 1,
+        section: "Part A — Induction Motor (No-Load & Full-Load Analysis)",
+        marks: 2,
+        text: "A 14 kW, 3-phase, 12-pole, 500 V, 60 Hz star-connected induction motor has stator resistance 0.16 Ω/phase. At no load: line current = 6 A, input power = 520 W. Friction & windage loss = 400 W. Estimate the stator core loss (in W).",
+        options: ["84.5", "102.7", "120.0", "135.4"],
+        correct: 1,
+        explanation: "SCL_NL = 3×6²×0.16 = 17.28 W. Core loss = 520 − 17.28 − 400 = 102.72 W ≈ 102.7 W",
+        unit: "W"
+      },
+      {
+        id: 2,
+        section: "Part A — Induction Motor (No-Load & Full-Load Analysis)",
+        marks: 2,
+        text: "Using the same motor data (full-load: line current = 25 A, input power = 15.2 kW, stator core loss = 102.7 W), estimate the air-gap power at full load (in W).",
+        options: ["14,500", "14,797", "15,000", "13,980"],
+        correct: 1,
+        explanation: "SCL_FL = 3×25²×0.16 = 300 W. P_ag = 15200 − 300 − 102.7 = 14,797 W",
+        unit: "W"
+      },
+      {
+        id: 3,
+        section: "Part A — Induction Motor (No-Load & Full-Load Analysis)",
+        marks: 2,
+        text: "For the same motor, rated output = 14 kW, F&W = 400 W, P_ag = 14,797 W. Estimate the rotor copper loss at full load (in W).",
+        options: ["357", "397", "430", "480"],
+        correct: 1,
+        explanation: "Gross mech power = 14000 + 400 = 14400 W. RCL = P_ag − P_gross = 14797 − 14400 = 397 W",
+        unit: "W"
+      },
+      {
+        id: 4,
+        section: "Part A — Induction Motor (No-Load & Full-Load Analysis)",
+        marks: 3,
+        text: "For the 12-pole, 60 Hz motor with P_ag = 14,797 W and RCL = 397 W, estimate the full-load speed (in rpm).",
+        options: ["570", "578", "584", "590"],
+        correct: 2,
+        explanation: "Ns = 120×60/12 = 600 rpm. s = 397/14797 = 0.02685. N = 600×(1−0.02685) = 583.9 ≈ 584 rpm",
+        unit: "rpm"
+      },
+      {
+        id: 5,
+        section: "Part A — Induction Motor (No-Load & Full-Load Analysis)",
+        marks: 2,
+        text: "Estimate the gross mechanical torque (in Nm) developed at full load. (Ns = 600 rpm, P_ag = 14,797 W)",
+        options: ["218.4", "228.9", "235.5", "242.0"],
+        correct: 2,
+        explanation: "ωs = 2π×600/60 = 62.83 rad/s. T_gross = 14797/62.83 = 235.5 Nm",
+        unit: "Nm"
+      },
+      {
+        id: 6,
+        section: "Part A — Induction Motor (No-Load & Full-Load Analysis)",
+        marks: 2,
+        text: "Estimate the shaft torque (in Nm) at full load. (Speed = 584 rpm, P_shaft = 14 kW)",
+        options: ["215.3", "222.5", "228.9", "235.5"],
+        correct: 2,
+        explanation: "ωr = 2π×584/60 = 61.15 rad/s. T_shaft = 14000/61.15 = 228.9 Nm",
+        unit: "Nm"
+      },
+      {
+        id: 7,
+        section: "Part A — Induction Motor (No-Load & Full-Load Analysis)",
+        marks: 2,
+        text: "Estimate the efficiency (in %) of the motor at full load. (Output = 14 kW, Input = 15.2 kW)",
+        options: ["89.5", "90.8", "92.1", "93.5"],
+        correct: 2,
+        explanation: "η = (14000/15200)×100 = 92.1%",
+        unit: "%"
+      },
+      {
+        id: 8,
+        section: "Part B — Equivalent Circuit Analysis",
+        marks: 2,
+        text: "A 3-phase, 4-pole, 500 V (L-L), 60 Hz star-connected motor has: R₁=0.2 Ω, X₁=2 Ω, Xm=80 Ω, R₂=0.25 Ω, X₂=2 Ω. Using Thévenin equivalent (Vth = 281.5 V, Rth = 0.190 Ω, Xth = 1.952 Ω), estimate the starting torque (gross mechanical) in Nm.",
+        options: ["16.4", "18.2", "20.0", "22.4"],
+        correct: 2,
+        explanation: "At s=1: I₂ = 281.5/√((0.44)²+(3.952)²) = 70.8 A. Pag = 3×70.8²×0.25 = 3763 W. T = 3763/(60π) = 20.0 Nm",
+        unit: "Nm"
+      },
+      {
+        id: 9,
+        section: "Part B — Equivalent Circuit Analysis",
+        marks: 1,
+        text: "For the same motor at starting (s=1), estimate the line current (in A). Use full T-circuit: V₁=288.7 V (phase), Z_total = 0.438+j3.952 Ω.",
+        options: ["65.4", "68.9", "72.6", "76.3"],
+        correct: 2,
+        explanation: "|Z_total| = √(0.438²+3.952²) = 3.976 Ω. I_line = 288.7/3.976 = 72.6 A",
+        unit: "A"
+      },
+      {
+        id: 10,
+        section: "Part B — Equivalent Circuit Analysis",
+        marks: 2,
+        text: "Estimate the slip (in %) at which maximum gross mechanical torque occurs. (Rth=0.190 Ω, Xth=1.952 Ω, R₂=0.25 Ω, X₂=2 Ω)",
+        options: ["4.85", "5.60", "6.32", "7.10"],
+        correct: 2,
+        explanation: "s_Tmax = R₂/√(Rth²+(Xth+X₂)²) = 0.25/√(0.19²+3.952²) = 0.25/3.957 = 6.32%",
+        unit: "%"
+      },
+      {
+        id: 11,
+        section: "Part B — Equivalent Circuit Analysis",
+        marks: 2,
+        text: "Estimate the maximum gross mechanical torque (in Nm). (Vth=281.5 V, ωs=188.5 rad/s, Rth=0.190 Ω, Xth+X₂=3.952 Ω)",
+        options: ["138.5", "145.2", "152.1", "160.3"],
+        correct: 2,
+        explanation: "Tmax = 3×281.5²/[2×188.5×(0.190+3.957)] = 237720/1563.4 = 152.1 Nm",
+        unit: "Nm"
+      },
+      {
+        id: 12,
+        section: "Part B — Equivalent Circuit Analysis",
+        marks: 2,
+        text: "Estimate the net shaft power (in W) when maximum gross mechanical torque occurs. F&W loss = 1800 W, s_Tmax = 6.32%, Tmax = 152.1 Nm, ωs = 188.5 rad/s.",
+        options: ["22,850", "24,200", "25,059", "26,400"],
+        correct: 2,
+        explanation: "Pag = 152.1×188.5 = 28,672 W. P_gross = 28672×(1−0.0632) = 26,859 W. P_net = 26859−1800 = 25,059 W",
+        unit: "W"
+      },
+      {
+        id: 13,
+        section: "Part B — Equivalent Circuit Analysis",
+        marks: 2,
+        text: "Estimate the slip (in %) at which maximum gross mechanical power is developed. (R₂=0.25 Ω, Rth=0.190 Ω, Xth+X₂=3.952 Ω)",
+        options: ["4.82", "5.92", "6.32", "7.45"],
+        correct: 1,
+        explanation: "s_Pmax = R₂/(R₂+√((Rth+R₂)²+(Xth+X₂)²)) = 0.25/(0.25+√(0.44²+3.952²)) = 0.25/4.226 = 5.92%",
+        unit: "%"
+      },
+      {
+        id: 14,
+        section: "Part B — Equivalent Circuit Analysis",
+        marks: 2,
+        text: "Estimate the maximum net mechanical power output (shaft power) in W. F&W = 1800 W, Vth = 281.5 V, Rth+R₂ = 0.440 Ω, √((Rth+R₂)²+(Xth+X₂)²) = 3.976 Ω.",
+        options: ["23,400", "24,600", "25,116", "26,350"],
+        correct: 2,
+        explanation: "Pmech_max = 3×281.5²/[2×(3.976+0.440)] = 237720/8.832 = 26,916 W. P_net = 26916−1800 = 25,116 W",
+        unit: "W"
+      },
+      {
+        id: 15,
+        section: "Part B — Equivalent Circuit Analysis",
+        marks: 2,
+        text: "Estimate the resistance (in Ω) to be added to rotor per phase so that maximum torque occurs at starting. Rotor-to-stator turns ratio = 1. (Rth=0.190 Ω, Xth+X₂=3.952 Ω, R₂=0.25 Ω)",
+        options: ["2.95", "3.21", "3.71", "4.15"],
+        correct: 2,
+        explanation: "For s_Tmax=1: R₂+R_ext = √(Rth²+(Xth+X₂)²) = 3.957 Ω. R_ext = 3.957−0.25 = 3.71 Ω",
+        unit: "Ω"
+      }
+    ];
+
+    const TOTAL_TIME = 60 * 60;
+
+    function TCSCalculator() {
+      const [display, setDisplay] = useState("0");
+      const [memory, setMemory] = useState(0);
+      const [prevValue, setPrevValue] = useState(null);
+      const [operator, setOperator] = useState(null);
+      const [waitingForOperand, setWaitingForOperand] = useState(false);
+      const [expression, setExpression] = useState("");
+
+      const inputDigit = (digit) => {
+        if (waitingForOperand) { setDisplay(String(digit)); setWaitingForOperand(false); }
+        else { setDisplay(display === "0" ? String(digit) : display + digit); }
+      };
+      const inputDot = () => {
+        if (waitingForOperand) { setDisplay("0."); setWaitingForOperand(false); return; }
+        if (!display.includes(".")) setDisplay(display + ".");
+      };
+      const calculate = (a, b, op) => {
+        switch (op) {
+          case "+": return a + b; case "−": return a - b;
+          case "×": return a * b; case "÷": return b !== 0 ? a / b : 0;
+          case "xʸ": return Math.pow(a, b); default: return b;
+        }
+      };
+      const handleOperator = (op) => {
+        const val = parseFloat(display);
+        if (prevValue !== null && !waitingForOperand) {
+          const result = calculate(prevValue, val, operator);
+          setDisplay(String(parseFloat(result.toFixed(10))));
+          setPrevValue(result);
+          setExpression(parseFloat(result.toFixed(10)) + " " + op);
+        } else { setPrevValue(val); setExpression(val + " " + op); }
+        setOperator(op); setWaitingForOperand(true);
+      };
+      const handleEquals = () => {
+        if (prevValue === null || operator === null) return;
+        const val = parseFloat(display);
+        const result = calculate(prevValue, val, operator);
+        const res = parseFloat(result.toFixed(10));
+        setExpression(expression + " " + val + " =");
+        setDisplay(String(res)); setPrevValue(null); setOperator(null); setWaitingForOperand(true);
+      };
+      const handleUnary = (fn) => {
+        const val = parseFloat(display);
+        let result;
+        switch (fn) {
+          case "√": result = Math.sqrt(val); break;
+          case "x²": result = val * val; break;
+          case "1/x": result = 1 / val; break;
+          case "sin": result = Math.sin(val * Math.PI / 180); break;
+          case "cos": result = Math.cos(val * Math.PI / 180); break;
+          case "tan": result = Math.tan(val * Math.PI / 180); break;
+          case "log": result = Math.log10(val); break;
+          case "ln": result = Math.log(val); break;
+          case "eˣ": result = Math.exp(val); break;
+          case "π": result = Math.PI; break;
+          case "±": result = -val; break;
+          default: result = val;
+        }
+        setDisplay(String(parseFloat(result.toFixed(10)))); setWaitingForOperand(true);
+      };
+      const handleClear = () => { setDisplay("0"); setPrevValue(null); setOperator(null); setWaitingForOperand(false); setExpression(""); };
+      const handleBackspace = () => { if (waitingForOperand) return; setDisplay(display.length > 1 ? display.slice(0, -1) : "0"); };
+
+      const btn = (label, onClick, bg, color = "#fff") => (
+        <button key={label} onClick={onClick} style={{ padding: "10px 2px", background: bg, color, border: "1px solid #445", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "600", touchAction: "manipulation" }}>
+          {label}
+        </button>
+      );
+
+      return (
+        <div style={{ background: "#1a1a2e", border: "2px solid #444", borderRadius: "10px", padding: "10px", userSelect: "none" }}>
+          <div style={{ background: "#0a0a1a", border: "1px solid #333", borderRadius: "6px", padding: "8px", marginBottom: "8px", textAlign: "right" }}>
+            <div style={{ color: "#888", fontSize: "10px", minHeight: "14px" }}>{expression || (memory !== 0 ? `M: ${memory}` : "")}</div>
+            <div style={{ color: "#00ff88", fontSize: "20px", fontWeight: "bold", fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {display.length > 12 ? parseFloat(display).toExponential(5) : display}
+            </div>
+          </div>
+          {/* Memory */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "3px", marginBottom: "3px" }}>
+            {[["MC", () => setMemory(0)], ["MR", () => { setDisplay(String(memory)); setWaitingForOperand(true); }], ["MS", () => setMemory(parseFloat(display))], ["M+", () => setMemory(memory + parseFloat(display))], ["M−", () => setMemory(memory - parseFloat(display))]].map(([l, fn]) =>
+              btn(l, fn, "#2d2d4e", "#aef")
+            )}
+          </div>
+          {/* Scientific row 1 */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "3px", marginBottom: "3px" }}>
+            {[["sin", () => handleUnary("sin")], ["cos", () => handleUnary("cos")], ["tan", () => handleUnary("tan")], ["log", () => handleUnary("log")], ["ln", () => handleUnary("ln")]].map(([l, fn]) =>
+              btn(l, fn, "#1e3a5f", "#7dd3fc")
+            )}
+          </div>
+          {/* Scientific row 2 */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "3px", marginBottom: "3px" }}>
+            {[["√", () => handleUnary("√")], ["x²", () => handleUnary("x²")], ["xʸ", () => handleOperator("xʸ")], ["1/x", () => handleUnary("1/x")], ["eˣ", () => handleUnary("eˣ")]].map(([l, fn]) =>
+              btn(l, fn, "#1e3a5f", "#7dd3fc")
+            )}
+          </div>
+          {/* Main grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "3px" }}>
+            {btn("AC", handleClear, "#8b1a1a")}
+            {btn("CE", () => { setDisplay("0"); setWaitingForOperand(false); }, "#5a2a00", "#ffa")}
+            {btn("⌫", handleBackspace, "#3a2a4a", "#ddd")}
+            {btn("÷", () => handleOperator("÷"), "#2a5a2a", "#afffaf")}
+            {["7","8","9"].map(d => btn(d, () => inputDigit(d), "#2a2a3e", "#eee"))}
+            {btn("×", () => handleOperator("×"), "#2a5a2a", "#afffaf")}
+            {["4","5","6"].map(d => btn(d, () => inputDigit(d), "#2a2a3e", "#eee"))}
+            {btn("−", () => handleOperator("−"), "#2a5a2a", "#afffaf")}
+            {["1","2","3"].map(d => btn(d, () => inputDigit(d), "#2a2a3e", "#eee"))}
+            {btn("+", () => handleOperator("+"), "#2a5a2a", "#afffaf")}
+            {btn("±", () => handleUnary("±"), "#2a2a3e", "#eee")}
+            {btn("0", () => inputDigit("0"), "#2a2a3e", "#eee")}
+            {btn(".", inputDot, "#2a2a3e", "#eee")}
+            {btn("=", handleEquals, "#c45000")}
+          </div>
+          <div style={{ textAlign: "center", color: "#556", fontSize: "9px", marginTop: "6px", letterSpacing: "1px" }}>TCS iON SCIENTIFIC CALCULATOR</div>
+        </div>
+      );
+    }
+
+    function GATEMockTest() {
+      const [current, setCurrent] = useState(0);
+      const [answers, setAnswers] = useState({});
+      const [visited, setVisited] = useState({ 0: true });
+      const [markedForReview, setMarkedForReview] = useState({});
+      const [timeLeft, setTimeLeft] = useState(TOTAL_TIME);
+      const [submitted, setSubmitted] = useState(false);
+      const [showCalc, setShowCalc] = useState(false);
+      const [showPalette, setShowPalette] = useState(false);
+
+      useEffect(() => {
+        if (submitted) return;
+        const t = setInterval(() => {
+          setTimeLeft(prev => { if (prev <= 1) { clearInterval(t); setSubmitted(true); return 0; } return prev - 1; });
+        }, 1000);
+        return () => clearInterval(t);
+      }, [submitted]);
+
+      const formatTime = (s) => {
+        const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+        return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+      };
+      const navigate = (idx) => { setCurrent(idx); setVisited(v => ({ ...v, [idx]: true })); setShowPalette(false); };
+      const handleAnswer = (optIdx) => { if (submitted) return; setAnswers(a => ({ ...a, [current]: optIdx })); };
+      const toggleMark = () => setMarkedForReview(m => ({ ...m, [current]: !m[current] }));
+      const handleSubmit = () => {
+        if (window.confirm("Are you sure you want to submit the test?")) setSubmitted(true);
+      };
+      const getScore = () => {
+        let score = 0, correct = 0, wrong = 0;
+        questions.forEach((q, i) => {
+          if (answers[i] !== undefined) {
+            if (answers[i] === q.correct) { score += q.marks; correct++; }
+            else { score -= q.marks === 1 ? 1/3 : 2/3; wrong++; }
+          }
+        });
+        return { score: parseFloat(score.toFixed(2)), correct, wrong, unattempted: questions.length - correct - wrong };
+      };
+      const getQStatus = (i) => {
+        if (submitted) {
+          if (answers[i] === undefined) return "unattempted";
+          return answers[i] === questions[i].correct ? "correct" : "wrong";
+        }
+        if (markedForReview[i] && answers[i] !== undefined) return "marked-answered";
+        if (markedForReview[i]) return "marked";
+        if (answers[i] !== undefined) return "answered";
+        if (visited[i]) return "visited";
+        return "notvisited";
+      };
+      const statusColor = (s) => {
+        switch (s) {
+          case "correct": return { bg: "#22c55e", color: "#fff" };
+          case "wrong": return { bg: "#ef4444", color: "#fff" };
+          case "answered": return { bg: "#22c55e", color: "#fff" };
+          case "marked-answered": case "marked": return { bg: "#9333ea", color: "#fff" };
+          case "visited": return { bg: "#ef4444", color: "#fff" };
+          default: return { bg: "#374151", color: "#9ca3af" };
+        }
+      };
+
+      const q = questions[current];
+
+      // ── RESULT SCREEN ──
+      if (submitted) {
+        const { score, correct, wrong, unattempted } = getScore();
+        const totalMarks = questions.reduce((s, q) => s + q.marks, 0);
+        return (
+          <div style={{ minHeight: "100vh", background: "linear-gradient(135deg,#0f172a,#1e293b)", color: "#e2e8f0", padding: "16px" }}>
+            <div style={{ maxWidth: "680px", margin: "0 auto" }}>
+              <div style={{ textAlign: "center", marginBottom: "20px" }}>
+                <div style={{ fontSize: "24px", fontWeight: "bold", color: "#fbbf24", letterSpacing: "2px" }}>GATE EE 2026</div>
+                <div style={{ fontSize: "13px", color: "#94a3b8", marginTop: "4px" }}>Electrical Machines — Mock Test Result</div>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid #334155", borderRadius: "16px", padding: "24px", marginBottom: "20px", textAlign: "center" }}>
+                <div style={{ fontSize: "52px", fontWeight: "bold", color: score >= 0 ? "#22c55e" : "#ef4444", fontFamily: "monospace" }}>{score} / {totalMarks}</div>
+                <div style={{ fontSize: "13px", color: "#94a3b8", marginTop: "4px" }}>Raw Score (with negative marking)</div>
+                <div style={{ display: "flex", justifyContent: "center", gap: "32px", marginTop: "16px" }}>
+                  {[["Correct", correct, "#22c55e"], ["Wrong", wrong, "#ef4444"], ["Skipped", unattempted, "#94a3b8"]].map(([l, v, c]) => (
+                    <div key={l} style={{ textAlign: "center" }}>
+                      <div style={{ fontSize: "26px", fontWeight: "bold", color: c }}>{v}</div>
+                      <div style={{ fontSize: "11px", color: "#64748b" }}>{l}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ fontSize: "15px", fontWeight: "bold", color: "#fbbf24", marginBottom: "14px" }}>📋 Detailed Solution Review</div>
+              {questions.map((q, i) => {
+                const userAns = answers[i];
+                const isCorrect = userAns === q.correct;
+                return (
+                  <div key={i} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${isCorrect ? "#166534" : userAns !== undefined ? "#7f1d1d" : "#334155"}`, borderRadius: "12px", padding: "16px", marginBottom: "12px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+                      <div style={{ fontSize: "13px", fontWeight: "bold", color: "#fbbf24" }}>Q{q.id} · {q.marks} marks</div>
+                      <div style={{ fontSize: "11px", padding: "2px 10px", borderRadius: "20px", background: isCorrect ? "#166534" : userAns !== undefined ? "#7f1d1d" : "#374151", color: isCorrect ? "#bbf7d0" : userAns !== undefined ? "#fecaca" : "#9ca3af" }}>
+                        {isCorrect ? "✓ Correct" : userAns !== undefined ? "✗ Wrong" : "— Skipped"}
+                      </div>
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#cbd5e1", marginBottom: "10px", lineHeight: "1.7" }}>{q.text}</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px", marginBottom: "10px" }}>
+                      {q.options.map((opt, j) => (
+                        <div key={j} style={{ padding: "6px 8px", borderRadius: "6px", fontSize: "11px", background: j === q.correct ? "rgba(34,197,94,0.2)" : j === userAns ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.04)", border: `1px solid ${j === q.correct ? "#22c55e" : j === userAns ? "#ef4444" : "#334155"}`, color: j === q.correct ? "#86efac" : j === userAns ? "#fca5a5" : "#94a3b8" }}>
+                          ({String.fromCharCode(65+j)}) {opt} {q.unit} {j === q.correct ? "✓" : j === userAns && !isCorrect ? "✗" : ""}
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ background: "rgba(251,191,36,0.08)", border: "1px solid #78350f", borderRadius: "8px", padding: "10px", fontSize: "11px", color: "#fde68a", lineHeight: "1.6" }}>
+                      <strong>Solution:</strong> {q.explanation}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+
+      // ── TEST SCREEN ──
+      return (
+        <div style={{ minHeight: "100vh", background: "#0f172a", color: "#e2e8f0", display: "flex", flexDirection: "column" }}>
+
+          {/* Top Bar */}
+          <div style={{ background: "#1e293b", borderBottom: "2px solid #2d4a6e", padding: "0 12px", display: "flex", alignItems: "center", justifyContent: "space-between", height: "52px", flexShrink: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{ background: "#1d4ed8", color: "#fff", fontWeight: "900", fontSize: "14px", padding: "4px 10px", borderRadius: "6px" }}>GATE</div>
+              <div>
+                <div style={{ fontSize: "12px", fontWeight: "700", color: "#f1f5f9" }}>EE — Electrical Machines</div>
+                <div style={{ fontSize: "9px", color: "#64748b" }}>15 Questions · 30 Marks</div>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: "9px", color: "#64748b", textTransform: "uppercase" }}>Time Left</div>
+                <div style={{ fontSize: "18px", fontWeight: "700", fontFamily: "monospace", color: timeLeft < 300 ? "#ef4444" : "#22c55e" }}>{formatTime(timeLeft)}</div>
+              </div>
+              <button onClick={() => setShowPalette(p => !p)} style={{ padding: "6px 10px", background: showPalette ? "#1d4ed8" : "#334155", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "11px", fontWeight: "600" }}>
+                {showPalette ? "✕" : "☰"}
+              </button>
+              <button onClick={handleSubmit} style={{ padding: "6px 12px", background: "#dc2626", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px", fontWeight: "700" }}>
+                Submit
+              </button>
+            </div>
+          </div>
+
+          {/* Slide-down Palette Overlay */}
+          {showPalette && (
+            <div style={{ background: "#1e293b", borderBottom: "1px solid #334155", padding: "14px", flexShrink: 0 }}>
+              <div style={{ fontSize: "10px", color: "#64748b", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", fontWeight: "600" }}>Question Palette</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(8,1fr)", gap: "5px", marginBottom: "10px" }}>
+                {questions.map((_, i) => {
+                  const st = getQStatus(i);
+                  const sc = statusColor(st);
+                  return (
+                    <button key={i} onClick={() => navigate(i)} style={{ padding: "8px 0", borderRadius: "6px", background: i === current ? "#1d4ed8" : sc.bg, color: i === current ? "#fff" : sc.color, border: i === current ? "2px solid #60a5fa" : "1px solid rgba(255,255,255,0.1)", cursor: "pointer", fontSize: "12px", fontWeight: "700" }}>
+                      {i + 1}
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", fontSize: "10px" }}>
+                {[["#22c55e","Answered"],["#ef4444","Visited/Not answered"],["#374151","Not visited"],["#9333ea","Marked"]].map(([c,l]) => (
+                  <div key={l} style={{ display: "flex", alignItems: "center", gap: "4px", color: "#64748b" }}>
+                    <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: c }}></div>{l}
+                  </div>
+                ))}
+              </div>
+              {/* Stats row */}
+              <div style={{ display: "flex", gap: "16px", marginTop: "10px" }}>
+                {[["Answered", Object.keys(answers).length, "#22c55e"], ["Marked", Object.values(markedForReview).filter(Boolean).length, "#9333ea"], ["Total", questions.length, "#60a5fa"]].map(([l,v,c]) => (
+                  <div key={l} style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: "16px", fontWeight: "700", color: c }}>{v}</div>
+                    <div style={{ fontSize: "9px", color: "#64748b" }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Main scrollable area */}
+          <div style={{ flex: 1, overflowY: "auto", padding: "14px" }}>
+
+            {/* Section + Question */}
+            <div style={{ fontSize: "10px", fontWeight: "600", color: "#60a5fa", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "6px" }}>{q.section}</div>
+            <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "12px", padding: "16px", marginBottom: "14px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#fbbf24" }}>Q{current + 1} / {questions.length}</div>
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <span style={{ background: "#1d4ed8", color: "#fff", fontSize: "10px", padding: "2px 8px", borderRadius: "20px" }}>+{q.marks}</span>
+                  <span style={{ background: "#7f1d1d", color: "#fca5a5", fontSize: "10px", padding: "2px 8px", borderRadius: "20px" }}>−{q.marks === 1 ? "0.33" : "0.67"}</span>
+                </div>
+              </div>
+              <div style={{ fontSize: "13px", lineHeight: "1.8", color: "#e2e8f0" }}>{q.text}</div>
+            </div>
+
+            {/* Options */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "9px", marginBottom: "16px" }}>
+              {q.options.map((opt, j) => {
+                const selected = answers[current] === j;
+                return (
+                  <button key={j} onClick={() => handleAnswer(j)} style={{ textAlign: "left", padding: "13px 14px", borderRadius: "10px", cursor: "pointer", border: selected ? "2px solid #3b82f6" : "1px solid #334155", background: selected ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.02)", color: selected ? "#93c5fd" : "#cbd5e1", fontSize: "13px", display: "flex", alignItems: "center", gap: "12px", touchAction: "manipulation" }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "26px", height: "26px", borderRadius: "50%", background: selected ? "#3b82f6" : "#334155", color: "#fff", fontWeight: "700", fontSize: "12px", flexShrink: 0 }}>
+                      {String.fromCharCode(65 + j)}
+                    </span>
+                    {opt} {q.unit}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Action buttons */}
+            <div style={{ display: "flex", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
+              <button onClick={() => setAnswers(a => { const n={...a}; delete n[current]; return n; })} style={{ padding: "8px 14px", background: "#374151", color: "#9ca3af", border: "1px solid #4b5563", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>Clear</button>
+              <button onClick={toggleMark} style={{ padding: "8px 14px", background: markedForReview[current] ? "#7e22ce" : "#374151", color: markedForReview[current] ? "#e9d5ff" : "#9ca3af", border: "1px solid #4b5563", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>
+                {markedForReview[current] ? "★ Marked" : "☆ Mark"}
+              </button>
+              <button onClick={() => setShowCalc(c => !c)} style={{ padding: "8px 14px", background: showCalc ? "#1d4ed8" : "#374151", color: showCalc ? "#fff" : "#9ca3af", border: "1px solid #4b5563", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>
+                🖩 Calc
+              </button>
+            </div>
+
+            {/* Calculator (inline, toggleable) */}
+            {showCalc && (
+              <div style={{ marginBottom: "16px" }}>
+                <TCSCalculator />
+              </div>
+            )}
+
+            {/* Prev / Next */}
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", paddingBottom: "20px" }}>
+              <button onClick={() => current > 0 && navigate(current - 1)} disabled={current === 0} style={{ flex: 1, padding: "12px", background: current > 0 ? "#1d4ed8" : "#1e293b", color: current > 0 ? "#fff" : "#4b5563", border: "1px solid #334155", borderRadius: "8px", cursor: current > 0 ? "pointer" : "not-allowed", fontSize: "14px", fontWeight: "700" }}>◀ Prev</button>
+              <button onClick={() => current < questions.length - 1 && navigate(current + 1)} disabled={current === questions.length - 1} style={{ flex: 1, padding: "12px", background: current < questions.length - 1 ? "#1d4ed8" : "#1e293b", color: current < questions.length - 1 ? "#fff" : "#4b5563", border: "1px solid #334155", borderRadius: "8px", cursor: current < questions.length - 1 ? "pointer" : "not-allowed", fontSize: "14px", fontWeight: "700" }}>Next ▶</button>
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<GATEMockTest />);
+  </script>
+</body>
+</html>
